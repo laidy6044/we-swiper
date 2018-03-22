@@ -46,7 +46,8 @@ var handle = {
   touchstart: function touchstart(e) {
     if (this.noSwiper) return;
     var onTouchStart = this.onTouchStart,
-        XORY = this.XORY,
+        XORY = this.XORY, 
+	YORX = this.YORX,
         activeIndex = this.activeIndex,
         rectDistance = this.rectDistance;
 
@@ -55,6 +56,7 @@ var handle = {
     var translate = -activeIndex * rectDistance;
 
     this['touchStart' + XORY] = distance;
+    this['touchStart' + YORX] = touch['client' + YORX];
     this['translate' + XORY] = translate;
     this.touchStartTime = new Date().getTime();
 
@@ -66,10 +68,13 @@ var handle = {
     if (this.noSwiper) return;
     var onTouchMove = this.onTouchMove,
         XORY = this.XORY,
+	YORX = this.YORX,
         onSlideMove = this.onSlideMove;
 
     var touch = e.changedTouches[0];
     var distance = touch['client' + XORY];
+    var distanceYORX = touch['client' + YORX];
+    if (Math.abs(distanceYORX - this['touchStart' + YORX]) > Math.abs(distance - this['touchStart' + XORY])) return !1;
     var tmpMove = this['translate' + XORY] + distance - this['touchStart' + XORY];
 
     typeof onTouchMove === 'function' && onTouchMove(this, e); //  手指碰触slide并且滑动时执行
@@ -417,6 +422,7 @@ var weSwiper = function () {
       this.syncView(directionViewName, directionClass);
       this.rectDistance = direction === 'horizontal' ? this.width : this.height;
       this.XORY = direction === 'horizontal' ? 'X' : 'Y';
+      this.YORX = direction === 'horizontal' ? 'Y' : 'X';
       this.activeIndex = initialSlide; //  将初始页码赋给activeIndex
       this.noSwiper = false; //  阻止手势滑动
       this.previousIndex = initialSlide; //  返回上一个活动块的索引，切换前的索引
